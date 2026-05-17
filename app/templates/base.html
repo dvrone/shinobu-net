@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>
+            {% block title %}Shinobu-Net{% endblock %}
+        </title>
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: #0d0f14;
+                color: #c9d1d9;
+                font-family: 'Courier New', Courier, monospace;
+                min-height: 100vh;
+            }
+
+            /* ── Nav ── */
+            nav {
+                background: #010409;
+                border-bottom: 1px solid #21262d;
+                padding: 0.85rem 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            nav .brand {
+                font-size: 1.2rem;
+                font-weight: bold;
+                color: #58a6ff;
+                letter-spacing: 2px;
+                text-decoration: none;
+            }
+
+            nav .brand span {
+                color: #f78166;
+            }
+
+            nav .nav-links a {
+                color: #8b949e;
+                text-decoration: none;
+                margin-left: 1.5rem;
+                font-size: 0.85rem;
+                transition: color 0.2s;
+            }
+
+            nav .nav-links a:hover {
+                color: #58a6ff;
+            }
+
+            /* ── Layout ── */
+            .container {
+                max-width: 1100px;
+                margin: 2.5rem auto;
+                padding: 0 1.5rem;
+            }
+
+            /* ── Flash messages ── */
+            .flash-list {
+                list-style: none;
+                margin-bottom: 1.5rem;
+            }
+
+            .flash-list li {
+                padding: 0.75rem 1rem;
+                border-radius: 6px;
+                margin-bottom: 0.5rem;
+                font-size: 0.88rem;
+            }
+
+            .flash-list .error {
+                background: #2d1217;
+                border: 1px solid #f85149;
+                color: #f85149;
+            }
+
+            .flash-list .info {
+                background: #0d1117;
+                border: 1px solid #58a6ff;
+                color: #58a6ff;
+            }
+
+            .flash-list .success {
+                background: #0d1117;
+                border: 1px solid #3fb950;
+                color: #3fb950;
+            }
+
+            /* ── Cards ── */
+            .card {
+                background: #161b22;
+                border: 1px solid #21262d;
+                border-radius: 8px;
+                padding: 1.5rem;
+                margin-bottom: 1.25rem;
+            }
+
+            /* ── Buttons ── */
+            .btn {
+                display: inline-block;
+                padding: 0.5rem 1.2rem;
+                border-radius: 6px;
+                font-family: inherit;
+                font-size: 0.85rem;
+                cursor: pointer;
+                border: none;
+                text-decoration: none;
+                transition: opacity 0.2s;
+            }
+
+            .btn:hover {
+                opacity: 0.82;
+            }
+
+            .btn-primary {
+                background: #238636;
+                color: #fff;
+            }
+
+            .btn-blue {
+                background: #1f6feb;
+                color: #fff;
+            }
+
+            .btn-danger {
+                background: #b62324;
+                color: #fff;
+            }
+
+            /* ── Badge ── */
+            .badge {
+                display: inline-block;
+                padding: 0.2rem 0.65rem;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: bold;
+                letter-spacing: 0.5px;
+            }
+
+            .badge-normal {
+                background: #1a3a2a;
+                color: #3fb950;
+            }
+
+            .badge-dos {
+                background: #2d2000;
+                color: #e3b341;
+            }
+
+            .badge-ddos {
+                background: #2d1217;
+                color: #f85149;
+            }
+
+            .badge-scan {
+                background: #1a1f3a;
+                color: #58a6ff;
+            }
+
+            .badge-brute {
+                background: #2d1b3a;
+                color: #d2a8ff;
+            }
+
+            .badge-unknown {
+                background: #1c1c1c;
+                color: #8b949e;
+            }
+
+            /* ── Footer ── */
+            footer {
+                text-align: center;
+                padding: 2rem;
+                font-size: 0.75rem;
+                color: #30363d;
+                border-top: 1px solid #21262d;
+                margin-top: 3rem;
+            }
+        </style>
+        {% block extra_styles %}{% endblock %}
+    </head>
+    <body>
+        <nav>
+            <a class="brand" href="{{ url_for("main.index") }}">
+                &#x2756; SHINOBU<span>-NET</span>
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for("main.index") }}">Dashboard</a>
+            </div>
+        </nav>
+        <div class="container">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flash-list">
+                        {% for category, message in messages %}<li class="{{ category }}">{{ message }}</li>{% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+        <footer>
+            shinobu-net &mdash; network anomaly analyzer
+        </footer>
+    </body>
+</html>

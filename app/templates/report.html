@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block title %}Report #{{ scan.id }} — Shinobu-Net{% endblock %}
+{% block extra_styles %}
+    <style>
+        .report-header {
+            margin-bottom: 2rem;
+        }
+
+        .report-header h1 {
+            font-size: 1.1rem;
+            color: #58a6ff;
+            letter-spacing: 1px;
+            margin-bottom: 0.4rem;
+        }
+
+        .report-header .meta {
+            font-size: 0.78rem;
+            color: #8b949e;
+        }
+
+        .report-header .meta span {
+            margin-right: 1.5rem;
+        }
+
+        /* ── Classification banner ── */
+        .classification-banner {
+            padding: 1.25rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .banner-normal {
+            background: #0d1f17;
+            border: 1px solid #3fb950;
+        }
+
+        .banner-dos {
+            background: #1f1700;
+            border: 1px solid #e3b341;
+        }
+
+        .banner-ddos {
+            background: #1f0d0e;
+            border: 1px solid #f85149;
+        }
+
+        .banner-scan {
+            background: #0d1120;
+            border: 1px solid #58a6ff;
+        }
+
+        .banner-brute {
+            background: #160d1f;
+            border: 1px solid #d2a8ff;
+        }
+
+        .banner-unknown {
+            background: #161b22;
+            border: 1px solid #30363d;
+        }
+
+        .banner-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b949e;
+            margin-bottom: 0.3rem;
+        }
+
+        .banner-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* ── Metrics grid ── */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+        }
+
+        .metric-card .metric-label {
+            font-size: 0.72rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.4rem;
+        }
+
+        .metric-card .metric-value {
+            font-size: 1.35rem;
+            color: #c9d1d9;
+            font-weight: bold;
+        }
+
+        .metric-card .metric-value.highlight {
+            color: #58a6ff;
+        }
+
+        /* ── Section titles ── */
+        .section-title {
+            font-size: 0.78rem;
+            color: #8b949e;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #21262d;
+        }
+
+        /* ── Entropy bars ── */
+        .entropy-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.85rem;
+            gap: 1rem;
+        }
+
+        .entropy-row .e-label {
+            width: 120px;
+            font-size: 0.8rem;
+            color: #8b949e;
+            flex-shrink: 0;
+        }
+
+        .entropy-bar-bg {
+            flex: 1;
+            background: #21262d;
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .entropy-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: #1f6feb;
+            transition: width 0.6s ease;
+        }
+
+        .entropy-row .e-value {
+            width: 50px;
+            text-align: right;
+            font-size: 0.8rem;
+            color: #c9d1d9;
+        }
+
+        /* ── Findings ── */
+        .findings-list {
+            list-style: none;
+        }
+
+        .findings-list li {
+            padding: 0.7rem 1rem;
+            border-left: 3px solid #f85149;
+            background: #1a0d0e;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 0.6rem;
+            font-size: 0.82rem;
+            color: #ffa198;
+            word-break: break-all;
+        }
+
+        .no-findings {
+            padding: 1.5rem;
+            text-align: center;
+            color: #3fb950;
+            font-size: 0.85rem;
+            background: #0d1f17;
+            border: 1px solid #3fb950;
+            border-radius: 8px;
+        }
+
+        /* ── Actions ── */
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    {% set cls = scan.classification | lower %}
+    <!-- Header -->
+    <div class="report-header">
+        <h1>// ANALYSIS REPORT</h1>
+        <div class="meta">
+            <span>&#x25A3; File: {{ scan.filename }}</span>
+            <span>&#x25A3; Scan ID: #{{ scan.id }}</span>
+            <span>&#x25A3; {{ scan.uploaded_at.strftime("%Y-%m-%d %H:%M:%S") }}</span>
+        </div>
+    </div>
+    <!-- Classification Banner -->
+    {% if "normal" in cls %}
+        <div class="classification-banner banner-normal">
+        {% elif "ddos" in cls %}
+            <div class="classification-banner banner-ddos">
+            {% elif "dos" in cls %}
+                <div class="classification-banner banner-dos">
+                {% elif "scan" in cls %}
+                    <div class="classification-banner banner-scan">
+                    {% elif "brute" in cls %}
+                        <div class="classification-banner banner-brute">
+                        {% else %}
+                            <div class="classification-banner banner-unknown">
+                            {% endif %}
+                            <div>
+                                <div class="banner-label">Classification</div>
+                                <div class="banner-value">{{ scan.classification }}</div>
+                            </div>
+                        </div>
+                        <!-- Traffic Metrics -->
+                        <p class="section-title">&#x25B6; Traffic Metrics</p>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-label">Total Packets</div>
+                                <div class="metric-value highlight">{{ scan.total_packets }}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Capture Duration</div>
+                                <div class="metric-value">{{ "%.2f s"|format(scan.capture_duration) if scan.capture_duration else "N/A" }}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Packets / sec</div>
+                                <div class="metric-value">{{ "%.2f"|format(scan.pps) if scan.pps else "N/A" }}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Unique Source IPs</div>
+                                <div class="metric-value">{{ scan.unique_src_ips }}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Unique Dest IPs</div>
+                                <div class="metric-value">{{ scan.unique_dst_ips }}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Unique Ports</div>
+                                <div class="metric-value">{{ scan.unique_ports }}</div>
+                            </div>
+                        </div>
+                        <!-- Entropy -->
+                        <p class="section-title">&#x25B6; Entropy Analysis</p>
+                        <div class="card">
+                            {% set max_entropy = 10.0 %}
+                            <div class="entropy-row">
+                                <span class="e-label">Source IP</span>
+                                <div class="entropy-bar-bg">
+                                    <div class="entropy-bar-fill"
+                                         style="width: {{ [(scan.src_entropy / max_entropy * 100), 100] | min }}%">
+                                    </div>
+                                </div>
+                                <span class="e-value">{{ scan.src_entropy }}</span>
+                            </div>
+                            <div class="entropy-row">
+                                <span class="e-label">Destination IP</span>
+                                <div class="entropy-bar-bg">
+                                    <div class="entropy-bar-fill"
+                                         style="width: {{ [(scan.dst_entropy / max_entropy * 100), 100] | min }}%;
+                                                background: #3fb950"></div>
+                                </div>
+                                <span class="e-value">{{ scan.dst_entropy }}</span>
+                            </div>
+                            <div class="entropy-row">
+                                <span class="e-label">Port</span>
+                                <div class="entropy-bar-bg">
+                                    <div class="entropy-bar-fill"
+                                         style="width: {{ [(scan.port_entropy / max_entropy * 100), 100] | min }}%;
+                                                background: #d2a8ff"></div>
+                                </div>
+                                <span class="e-value">{{ scan.port_entropy }}</span>
+                            </div>
+                        </div>
+                        <!-- Findings -->
+                        <p class="section-title">&#x25B6; Findings ({{ scan.findings_list() | length }})</p>
+                        {% if scan.findings_list() %}
+                            <ul class="findings-list">
+                                {% for finding in scan.findings_list() %}<li>&#x26A0; {{ finding }}</li>{% endfor %}
+                            </ul>
+                        {% else %}
+                            <div class="no-findings">&#x2714; No anomalies detected — traffic appears normal.</div>
+                        {% endif %}
+                        <!-- Actions -->
+                        <div class="actions">
+                            <a href="{{ url_for("main.index") }}" class="btn btn-blue">&#x2190; Back to Dashboard</a>
+                            <form action="{{ url_for('main.delete', scan_id=scan.id) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Delete this scan?');">
+                                <button type="submit" class="btn btn-danger">&#x2715; Delete Scan</button>
+                            </form>
+                        </div>
+                    {% endblock %}

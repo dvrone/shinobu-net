@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Shinobu-Net{% endblock %}
+{% block extra_styles %}
+    <style>
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.1rem;
+            color: #58a6ff;
+            letter-spacing: 1px;
+        }
+
+        .page-header p {
+            font-size: 0.78rem;
+            color: #8b949e;
+            margin-top: 0.25rem;
+        }
+
+        /* ── Upload card ── */
+        .upload-zone {
+            border: 1px dashed #30363d;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: border-color 0.2s;
+        }
+
+        .upload-zone:hover {
+            border-color: #58a6ff;
+        }
+
+        .upload-zone label {
+            display: block;
+            font-size: 0.82rem;
+            color: #8b949e;
+            margin-bottom: 1rem;
+        }
+
+        .upload-zone input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            cursor: pointer;
+            font-size: 0.82rem;
+            margin-right: 0.75rem;
+            transition: border-color 0.2s;
+        }
+
+        .file-label:hover {
+            border-color: #58a6ff;
+        }
+
+        #file-name {
+            font-size: 0.8rem;
+            color: #58a6ff;
+            display: block;
+            margin-top: 0.75rem;
+            min-height: 1.2rem;
+        }
+
+        /* ── History table ── */
+        .section-title {
+            font-size: 0.78rem;
+            color: #8b949e;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #21262d;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.83rem;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 0.6rem 0.8rem;
+            color: #8b949e;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #21262d;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #161b22;
+            transition: background 0.15s;
+        }
+
+        tbody tr:hover {
+            background: #161b22;
+        }
+
+        tbody td {
+            padding: 0.7rem 0.8rem;
+            color: #c9d1d9;
+            vertical-align: middle;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #30363d;
+            font-size: 0.85rem;
+        }
+
+        .empty-state span {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1>// DASHBOARD</h1>
+            <p>Upload a capture file to begin analysis.</p>
+        </div>
+    </div>
+    <!-- Upload Form -->
+    <div class="card">
+        <form action="{{ url_for("main.upload") }}"
+              method="POST"
+              enctype="multipart/form-data">
+            <div class="upload-zone" id="drop-zone">
+                <label>Accepted formats: .pcap &nbsp;/&nbsp; .pcapng &nbsp;—&nbsp; Max 100 MB</label>
+                <div>
+                    <label class="file-label" for="pcap_file">&#x1F4C2; Choose File</label>
+                    <input type="file"
+                           name="pcap_file"
+                           id="pcap_file"
+                           accept=".pcap,.pcapng"
+                           required />
+                    <button type="submit" class="btn btn-primary">&#x25B6; Analyze</button>
+                </div>
+                <span id="file-name">No file selected</span>
+            </div>
+        </form>
+    </div>
+    <!-- Scan History -->
+    <p class="section-title">&#x25A3; Scan History</p>
+    {% if scans %}
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Filename</th>
+                        <th>Classification</th>
+                        <th>Packets</th>
+                        <th>PPS</th>
+                        <th>Findings</th>
+                        <th>Scanned At</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scan in scans %}
+                        <tr>
+                            <td style="color:#30363d;">{{ scan.id }}</td>
+                            <td>{{ scan.filename }}</td>
+                            <td>
+                                {% set cls = scan.classification | lower %}
+                                {% if "normal" in cls %}
+                                    <span class="badge badge-normal">Normal</span>
+                                {% elif "ddos" in cls %}
+                                    <span class="badge badge-ddos">DDoS</span>
+                                {% elif "dos" in cls %}
+                                    <span class="badge badge-dos">DoS</span>
+                                {% elif "scan" in cls %}
+                                    <span class="badge badge-scan">Net Scan</span>
+                                {% elif "brute" in cls %}
+                                    <span class="badge badge-brute">Brute Force</span>
+                                {% else %}
+                                    <span class="badge badge-unknown">{{ scan.classification }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ scan.total_packets | default("—") }}</td>
+                            <td>{{ "%.1f"|format(scan.pps) if scan.pps else "N/A" }}</td>
+                            <td>{{ scan.findings_list() | length }}</td>
+                            <td style="color:#8b949e; font-size:0.78rem;">{{ scan.uploaded_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                            <td>
+                                <a href="{{ url_for('main.report', scan_id=scan.id) }}"
+                                   class="btn btn-blue"
+                                   style="font-size:0.75rem;
+                                          padding:0.3rem 0.8rem">View</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="card empty-state">
+            <span>&#x2756;</span>
+            No scans yet. Upload a capture file to get started.
+        </div>
+    {% endif %}
+    <script>
+        // Show selected filename
+        document.getElementById("pcap_file").addEventListener("change", function() {
+            const name = this.files[0] ? this.files[0].name : "No file selected";
+            document.getElementById("file-name").textContent = name;
+        });
+    </script>
+{% endblock %}
