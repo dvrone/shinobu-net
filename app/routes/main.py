@@ -1,3 +1,4 @@
+import json
 import os
 
 from flask import (Blueprint, current_app, flash, redirect, render_template,
@@ -72,6 +73,8 @@ def upload():
         port_entropy=result["port_entropy"],
         classification=result["classification"],
         findings="\n".join(result["findings"]),
+        top_src_ips=json.dumps(result["top_src_ips"]),
+        top_dst_ips=json.dumps(result["top_dst_ips"]),
     )
     db.session.add(scan)
     db.session.commit()

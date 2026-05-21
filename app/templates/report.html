@@ -290,6 +290,53 @@
                         {% else %}
                             <div class="no-findings">&#x2714; No anomalies detected — traffic appears normal.</div>
                         {% endif %}
+                        <!-- Top Talkers -->
+                        <p class="section-title">▶ Top Source IPs</p>
+                        <div class="card" style="padding: 0; overflow: hidden;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Source IP</th>
+                                        <th>Packets</th>
+                                        <th>% of Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ip, count in scan.top_src_list() %}
+                                        <tr>
+                                            <td style="color:#30363d;">{{ loop.index }}</td>
+                                            <td style="color:#58a6ff;">{{ ip }}</td>
+                                            <td>{{ count }}</td>
+                                            <td style="color:#8b949e;">{{ "%.2f"|format(count / scan.total_packets * 100) }}%</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="section-title">▶ Top Destination IPs</p>
+                        <div class="card" style="padding: 0; overflow: hidden;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Destination IP</th>
+                                        <th>Packets</th>
+                                        <th>% of Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ip, count in scan.top_dst_list() %}
+                                        <tr>
+                                            <td style="color:#30363d;">{{ loop.index }}</td>
+                                            <td style="color:#f78166;">{{ ip }}</td>
+                                            <td>{{ count }}</td>
+                                            <td style="color:#8b949e;">{{ "%.2f"|format(count / scan.total_packets * 100) }}%</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                         <!-- Actions -->
                         <div class="actions">
                             <a href="{{ url_for("main.index") }}" class="btn btn-blue">&#x2190; Back to Dashboard</a>

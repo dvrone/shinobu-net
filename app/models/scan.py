@@ -29,11 +29,28 @@ class Scan(db.Model):
     # Findings stored as newline-separated text
     findings = db.Column(db.Text, default="")
 
+    top_src_ips = db.Column(db.Text, default="")
+    top_dst_ips = db.Column(db.Text, default="")
+
     def findings_list(self):
         """Return findings as a clean Python list."""
         if not self.findings:
             return []
         return [f for f in self.findings.split("\n") if f.strip()]
+
+    def top_src_list(self):
+        if not self.top_src_ips:
+            return []
+        import json
+
+        return json.loads(self.top_src_ips)
+
+    def top_dst_list(self):
+        if not self.top_dst_ips:
+            return []
+        import json
+
+        return json.loads(self.top_dst_ips)
 
     def __repr__(self):
         return f"<Scan {self.id} — {self.filename} — {self.classification}>"

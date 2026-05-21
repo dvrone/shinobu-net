@@ -221,4 +221,6 @@ def analyze_pcap(filepath):
         "port_entropy": round(port_entropy, 4),
         "classification": classification,
         "findings": findings,
+        "top_src_ips": src_counter.most_common(10),
+        "top_dst_ips": dst_counter.most_common(10),
     }
