@@ -214,10 +214,18 @@
         </div>
     {% endif %}
     <script>
-        // Show selected filename
-        document.getElementById("pcap_file").addEventListener("change", function() {
+        const fileInput = document.getElementById("pcap_file");
+
+        fileInput.addEventListener("change", function() {
             const name = this.files[0] ? this.files[0].name : "No file selected";
             document.getElementById("file-name").textContent = name;
+        });
+
+        document.querySelector("form").addEventListener("submit", function() {
+            if (!fileInput.files.length) return;
+            document.getElementById("loading-filename").textContent =
+                fileInput.files[0].name;
+            document.getElementById("loading-overlay").style.display = "flex";
         });
     </script>
 {% endblock %}
